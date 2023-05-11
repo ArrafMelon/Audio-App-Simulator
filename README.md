@@ -1,2 +1,6 @@
 # Audio-App-Simulator
-A simple audio simulator which allows you to download, store, play types of media such as songs and books
+Simple Audio app simulator which stores, plays, and creates playlists for musics and audiobooks.
+
+Updated search and download functions using maps allows faster navigation through the audiocontents.
+
+Podcasts and searchp not included.
