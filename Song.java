@@ -1,5 +1,3 @@
-// Name: Suhaib Khan
-// Student ID: 501112462 
 /*
  * A Song is a type of AudioContent. A Song has extra fields such as Artist (person(s) singing the song) and composer 
  */
