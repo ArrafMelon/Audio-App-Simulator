@@ -1,5 +1,3 @@
-// Name: Suhaib Khan
-// Student ID: 501112462
 import java.util.ArrayList;
 
 /*
