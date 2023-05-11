@@ -1,5 +1,3 @@
-// Name: Suhaib Khan
-// Student ID: 501112462
 /*
  *  Audio Content contains information common to all types of audio (e.g. songs, audiobooks etc)
  */
