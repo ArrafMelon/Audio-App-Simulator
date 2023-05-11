@@ -1,5 +1,5 @@
-// Name: Suhaib Khan
-// Student ID: 501112462
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -25,7 +25,8 @@ public class MyAudioUI
 		while (scanner.hasNextLine())
 		{
 			String action = scanner.nextLine();
-
+			try
+			{
 			if (action == null || action.equals("")) 
 			{
 				System.out.print("\n>");
@@ -46,10 +47,6 @@ public class MyAudioUI
 			{
 				mylibrary.listAllAudioBooks(); 
 			}
-			else if (action.equalsIgnoreCase("PODCASTS"))	// List all songs
-			{
-				mylibrary.listAllPodcasts(); 
-			}
 			else if (action.equalsIgnoreCase("ARTISTS"))	// List all songs
 			{
 				mylibrary.listAllArtists(); 
@@ -62,20 +59,62 @@ public class MyAudioUI
 			// Specify the index of the content
 			else if (action.equalsIgnoreCase("DOWNLOAD")) 
 			{
-				int index = 0;
+				int indexFrom = 0;
+				int indexTo = 0;
 				
-				System.out.print("Store Content #: ");
+				System.out.print("Starting from store content: ");
 				if (scanner.hasNextInt())
 				{
-					index = scanner.nextInt();
+					// store the first inputted index
+					indexFrom = scanner.nextInt();
 					scanner.nextLine(); // "consume" nl character (necessary when mixing nextLine() and nextInt())
 				}
-				AudioContent content = store.getContent(index);
+				System.out.print("Ending store content: ");
+				if(scanner.hasNext())
+				{
+					// store last inputted index to indexTo
+					indexTo = scanner.nextInt();
+					scanner.nextLine();
+				}
+				// create arraylist of audiocontent to get store contents
+				ArrayList<AudioContent> content = store.getContent(indexFrom,indexTo);
 				if (content == null)
+				{
 					System.out.println("Content Not Found in Store");
-				else if (!mylibrary.download(content))
-						System.out.println(mylibrary.getErrorMessage());
-									
+				}
+				mylibrary.download(content);					
+			}
+			else if(action.equalsIgnoreCase("DOWNLOADA")) // downloads all audiocontent with the specified artist/ author
+			{
+				System.out.print("Enter Artist/ Authors name whose content you'd like to download: ");
+				String artist = "";
+				if(scanner.hasNext())
+				{
+					artist = scanner.nextLine();
+				}
+				// arraylist created using method using artistMap
+				ArrayList<AudioContent> content = store.getArtistContent(artist);
+				if (content == null)
+				{
+					System.out.println("Content Not Found in Store");
+				}
+				mylibrary.download(content);
+			}
+			else if(action.equalsIgnoreCase("DOWNLOADG")) // downloads all songs with specified genre
+			{
+				System.out.print("Genre contents you would like to download: ");
+				String genre = "";
+				if(scanner.hasNext())
+				{
+					genre = scanner.nextLine();
+				}
+				// arraylist created using method using genreMap
+				ArrayList<AudioContent> content = store.getGenreContent(genre);
+				if (content == null)
+				{
+					System.out.println("Content Not Found in Store");
+				}
+				mylibrary.download(content);
 			}
 			// Get the *library* index (index of a song based on the songs list)
 			// of a song from the keyboard and play the song 
@@ -90,10 +129,7 @@ public class MyAudioUI
 					index  = scanner.nextInt();
 					scanner.nextLine();
 				}
-				if(!mylibrary.playSong(index))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
+				mylibrary.playSong(index);
 			}
 			// Print the table of contents (TOC) of an audiobook that
 			// has been downloaded to the library. Get the desired book index
@@ -109,10 +145,7 @@ public class MyAudioUI
 					index = scanner.nextInt();
 					scanner.nextLine();
 				}
-				if(!mylibrary.printAudioBookTOC(index))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
+				mylibrary.printAudioBookTOC(index);
 			}
 			// Similar to playsong above except for audio book
 			// In addition to the book index, read the chapter 
@@ -133,26 +166,8 @@ public class MyAudioUI
 					chapt = scanner.nextInt();
 					scanner.nextLine();
 				}
-				if(!mylibrary.playAudioBook(index, chapt))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
-			}
-			// Print the episode titles for the given season of the given podcast
-			// In addition to the podcast index from the list of podcasts, 
-			// read the season number from the keyboard
-			// see class Library for the method to call
-			else if (action.equalsIgnoreCase("PODTOC")) 
-			{
-				
-			}
-			// Similar to playsong above except for podcast
-			// In addition to the podcast index from the list of podcasts, 
-			// read the season number and the episode number from the keyboard
-			// see class Library for the method to call
-			else if (action.equalsIgnoreCase("PLAYPOD")) 
-			{
-				
+				mylibrary.playAudioBook(index, chapt);
+
 			}
 			// Specify a playlist title (string) 
 			// Play all the audio content (songs, audiobooks, podcasts) of the playlist 
@@ -167,11 +182,7 @@ public class MyAudioUI
 					title = scanner.nextLine();
 				}
 				// check if there is a playlist with specified title
-				if(!mylibrary.playPlaylist(title))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
-
+				mylibrary.playPlaylist(title);
 			}
 			// Specify a playlist title (string) 
 			// Read the index of a song/audiobook/podcast in the playist from the keyboard 
@@ -194,16 +205,7 @@ public class MyAudioUI
 					index = scanner.nextInt();
 					scanner.nextLine();
 				}
-				if(!mylibrary.playPlaylist(title, index))
-				{
-					// sets error message if title and index are not in mylibrary
-					System.out.println(mylibrary.getErrorMessage());
-				}
-				else
-				{
-					// plays the audiocontent
-					mylibrary.playPlaylist(title, index);
-				}
+				mylibrary.playPlaylist(title, index);
 			}
 			// Delete a song from the list of songs in mylibrary and any play lists it belongs to
 			// Read a song index from the keyboard
@@ -219,10 +221,7 @@ public class MyAudioUI
 					scanner.nextLine();
 				}
 				// print error if song not in library
-				if(!mylibrary.deleteSong(index))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
+				mylibrary.deleteSong(index);
 			}
 			// Read a title string from the keyboard and make a playlist
 			// see class Library for the method to call
@@ -235,10 +234,7 @@ public class MyAudioUI
 					// this will be the title of the playlist
 					title = scanner.nextLine();
 				}
-				if(!mylibrary.makePlaylist(title))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
+				mylibrary.makePlaylist(title);
 			}
 			// Print the content information (songs, audiobooks, podcasts) in the playlist
 			// Read a playlist title string from the keyboard
@@ -250,11 +246,7 @@ public class MyAudioUI
 				if(scanner.hasNextLine())
 				{
 					title = scanner.nextLine();
-					
-					if(!mylibrary.printPlaylist(title))
-					{
-						System.out.println(mylibrary.getErrorMessage());					
-					}
+					mylibrary.printPlaylist(title);
 				}
 				
 			}
@@ -280,10 +272,7 @@ public class MyAudioUI
 					{
 						index = scanner.nextInt();
 						scanner.nextLine();
-						if(!mylibrary.addContentToPlaylist(type, index, title))
-						{
-							System.out.println(mylibrary.getErrorMessage());
-						}
+						mylibrary.addContentToPlaylist(type, index, title);
 					}
 				}
 
@@ -303,11 +292,7 @@ public class MyAudioUI
 					index = scanner.nextInt();
 					scanner.nextLine();
 				}
-				if(!mylibrary.delContentFromPlaylist(index, title))
-				{
-					System.out.println(mylibrary.getErrorMessage());
-				}
-				
+				mylibrary.delContentFromPlaylist(index, title);
 			}
 			
 			else if (action.equalsIgnoreCase("SORTBYYEAR")) // sort songs by year
@@ -322,8 +307,63 @@ public class MyAudioUI
 			{
 				mylibrary.sortSongsByLength();
 			}
-
+			// NEW
+			else if(action.equalsIgnoreCase("SEARCH")) // search audiocontent given the title
+			{
+				System.out.print("Title of Audiocontent: ");
+				if(scanner.hasNext())
+				{
+					String title = scanner.nextLine();
+					store.getTitleMap(title);
+				}
+			}
+			else if(action.equalsIgnoreCase("SEARCHA")) // search audiocontent given the artist/ author
+			{
+				System.out.print("Name of Artist or Author: ");
+				if(scanner.hasNext())
+				{
+					String artist = scanner.nextLine();
+					store.getArtistMap(artist);
+				}
+			}
+			else if(action.equalsIgnoreCase("SEARCHG")) // search song given the genre
+			{
+				System.out.print("Name of Genre [POP, ROCK, JAZZ, HIPHOP, RAP, CLASSICAL]: ");
+				if(scanner.hasNext())
+				{
+					String genre = scanner.nextLine();
+					store.getGenreMap(genre);
+				}
+			}
 			System.out.print("\n>");
+			}
+			// catch every exception found and return error message
+			catch(ContentNotFoundException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.print("\n>");
+			}
+			catch(PlaylistNotFoundException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.print("\n>");
+			}
+			catch(ExistingPlaylistException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.print("\n>");
+			}
+			catch(IndexOutOfBoundsException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.print("\n>");
+			}
+			catch(NullPointerException e)
+			{
+				System.out.println(e.getMessage());
+				System.out.print("\n>");	
+			}
 		}
+		scanner.close();
 	}
 }
